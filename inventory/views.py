@@ -1,0 +1,45 @@
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+
+from inventory.forms import ProductForm
+from .models import Product
+
+# Create your views here.
+
+# /productos
+
+
+def index(request):
+    products = Product.objects.all()
+
+    return render(
+        request,
+        'index.html',
+        context={'products': products}
+    )
+
+
+def details(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    return render(
+        request,
+        'details.html',
+        context={'product': product}
+    )
+
+
+def create(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/inventory')
+    else:
+        form = ProductForm()
+
+    return render(
+        request,
+        'product_form.html',
+        {'form': form}
+    )
