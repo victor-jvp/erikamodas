@@ -28,8 +28,32 @@ def details(request, product_id):
         context={'product': product}
     )
 
+def edit(request, product_id):
+    errors = None
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'PUT':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/inventory')
+        else:
+            errors = form.errors.as_data()
+        
+    category = Category.objects.all().order_by('name')
+
+    return render(
+        request,
+        'product_edit.html',
+        {
+            'product': product,
+            'category' : category,
+            'errors': errors
+        }
+    )
 
 def create(request):
+    errors = None
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():

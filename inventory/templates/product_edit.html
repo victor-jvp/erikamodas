@@ -1,16 +1,16 @@
 {% extends 'base.html' %} {% block content %}
 
-<h1>Producto Nuevo</h1>
+<h1>{{ product.name }}</h1>
 
 <div class="card mt-3">
     <div class="card-body">
-        <form action="{% url 'product:create' %}" method="post">
+        <form action="{% url 'product:edit' product.id %}" method="PUT">
             {% csrf_token %}
 
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre</label>
                 <input type="text" class="form-control {% if errors.name %}is-invalid{% endif %}"
-                    name="name" id="name" placeholder="..." required>
+                    name="name" id="name" placeholder="..." required value="{{ product.name }}">
                 <div class="invalid-feedback">
                 {% if errors.name %}
                 {% for error in errors.name %}
@@ -23,7 +23,7 @@
             <div class="mb-3">
                 <label for="stock" class="form-label">Stock</label>
                 <input type="number" class="form-control {% if errors.name %}is-invalid{% endif %}" 
-                    name="stock" id="stock" placeholder="0.00" required>
+                    name="stock" id="stock" placeholder="0.00" required value="{{ product.stock }}">
                 <div class="invalid-feedback">
                 {% if errors.stock %}
                 {% for error in errors.stock %}
@@ -43,7 +43,9 @@
                         {% if forloop.first %}
                         <option value="">-Seleccione-</option>
                         {% endif %}
-                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        <option 
+                            {% if item.id == product.category.id %}selected{% endif %} 
+                            value="{{ item.id }}">{{ item.name }}</option>
                         {% empty %}
                         <option value="">-No se encontraron registros-</option>
                         {% endfor %}
@@ -65,5 +67,6 @@
         </form>
     </div>
 </div>
+
 
 {% endblock %}
