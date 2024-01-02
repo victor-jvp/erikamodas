@@ -14,7 +14,7 @@ def index(request):
 
     return render(
         request,
-        'index.html',
+        'product_index.html',
         context={'products': products}
     )
 
@@ -40,6 +40,6 @@ def create(request):
 
     return render(
         request,
-        'product_form.html',
+        'product_create.html',
         {'form': form}
     )

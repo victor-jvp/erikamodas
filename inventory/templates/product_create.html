@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Producto Nuevo</h1>
+
+<div class="card mt-5">
+    <div class="card-body">
+        <form action="{% url 'product:create' %}" method="post" novalidate>
+            {% csrf_token %}
+        
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" placeholder="...">
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Stock</label>
+                <input type="text" class="form-control" id="name" placeholder="...">
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Categoria</label>
+                <input type="text" class="form-control" id="name" placeholder="...">
+            </div>
+        
+            <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
+            <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-left"></i> Volver</a>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
