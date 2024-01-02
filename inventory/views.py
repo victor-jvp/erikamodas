@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 
 from inventory.forms import ProductForm
-from .models import Product
+from .models import Category, Product
 
 # Create your views here.
 
@@ -35,11 +35,19 @@ def create(request):
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/inventory')
+        else:
+            errors = form.errors.as_data()
     else:
         form = ProductForm()
+        
+    category = Category.objects.all().order_by('name')
 
     return render(
         request,
         'product_create.html',
-        {'form': form}
+        {
+            'form': form,
+            'category' : category,
+            'errors': errors
+        }
     )
