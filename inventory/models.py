@@ -21,8 +21,23 @@ class Product(models.Model):
     # RESTRICT: Solo elimina sino existen productos
     # SET_NULL: actualiza a valor nulo
     # SET_DEFAULT: asigna valor por defecto
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.RESTRICT)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
+
+
+class TransactionType(models.Model):
+    name = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.name
+
+
+class Transaction(models.Model):
+    date = models.DateTimeField()
+    type = models.ForeignKey(TransactionType, on_delete=models.RESTRICT)
+    product = models.ForeignKey(Product, on_delete=models.RESTRICT)
+    amount = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -23,14 +23,7 @@
             <div class="mb-3">
                 <label for="stock" class="form-label">Stock</label>
                 <input type="number" class="form-control {% if errors.name %}is-invalid{% endif %}" 
-                    name="stock" id="stock" placeholder="0.00" required value="{{ product.stock }}">
-                <div class="invalid-feedback">
-                {% if errors.stock %}
-                {% for error in errors.stock %}
-                    {{ error.message }}
-                {% endfor %}
-                {% endif %}       
-                </div>
+                        id="stock" placeholder="0.00" value="{{ product.stock }}" disabled>
             </div>
 
             <div class="mb-3">
@@ -63,7 +56,7 @@
             </div>
 
             <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
-            <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-left"></i> Volver</a>
+            <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Volver</a>
         </form>
     </div>
 </div>

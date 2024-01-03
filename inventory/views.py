@@ -1,12 +1,7 @@
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
-
 from inventory.forms import ProductForm
-from .models import Category, Product
-
-# Create your views here.
-
-# /productos
+from .models import Category, Product, Transaction
 
 
 def index(request):
@@ -28,10 +23,11 @@ def details(request, product_id):
         context={'product': product}
     )
 
+
 def edit(request, product_id):
     errors = None
     product = get_object_or_404(Product, id=product_id)
-    
+
     if request.method == 'PUT':
         form = ProductForm(request.POST)
         if form.is_valid():
@@ -39,7 +35,7 @@ def edit(request, product_id):
             return HttpResponseRedirect('/inventory')
         else:
             errors = form.errors.as_data()
-        
+
     category = Category.objects.all().order_by('name')
 
     return render(
@@ -47,10 +43,11 @@ def edit(request, product_id):
         'product_edit.html',
         {
             'product': product,
-            'category' : category,
+            'category': category,
             'errors': errors
         }
     )
+
 
 def create(request):
     errors = None
@@ -63,7 +60,7 @@ def create(request):
             errors = form.errors.as_data()
     else:
         form = ProductForm()
-        
+
     category = Category.objects.all().order_by('name')
 
     return render(
@@ -71,7 +68,27 @@ def create(request):
         'product_create.html',
         {
             'form': form,
-            'category' : category,
+            'category': category,
             'errors': errors
         }
     )
+
+
+def ajax_transactions(request):
+    transactions = Transaction.objects.values(
+        'date', 'type', 'product', 'amount')
+    data = {
+        'data': list(transactions)
+    }
+    return JsonResponse(data)
+
+
+def transaction_index(request):
+    return render(
+        request,
+        'transaction_index.html'
+    )
+
+
+def transaction_create(request):
+    
