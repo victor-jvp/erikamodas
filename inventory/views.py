@@ -91,4 +91,25 @@ def transaction_index(request):
 
 
 def transaction_create(request):
-    
+    errors = None
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/inventory')
+        else:
+            errors = form.errors.as_data()
+    else:
+        form = ProductForm()
+
+    category = Category.objects.all().order_by('name')
+
+    return render(
+        request,
+        'transaction_create.html',
+        {
+            'form': form,
+            'category': category,
+            'errors': errors
+        }
+    )

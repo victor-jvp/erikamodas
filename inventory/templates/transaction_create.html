@@ -1,0 +1,69 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Transacción Nueva</h1>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <form action="{% url 'product:transaction_create' %}" method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control {% if errors.name %}is-invalid{% endif %}"
+                    name="name" id="name" placeholder="..." required>
+                <div class="invalid-feedback">
+                {% if errors.name %}
+                {% for error in errors.name %}
+                    {{ error.message }}
+                {% endfor %}
+                {% endif %}       
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number" class="form-control {% if errors.name %}is-invalid{% endif %}" 
+                    name="stock" id="stock" placeholder="0.00" required>
+                <div class="invalid-feedback">
+                {% if errors.stock %}
+                {% for error in errors.stock %}
+                    {{ error.message }}
+                {% endfor %}
+                {% endif %}       
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Categoria</label>
+                <div class="input-group">
+                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" 
+                        name="category" id="category"
+                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
+                        {% for item in category %}
+                        {% if forloop.first %}
+                        <option value="">-Seleccione-</option>
+                        {% endif %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% empty %}
+                        <option value="">-No se encontraron registros-</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-primary" type="button" id="button-addon2"><i
+                        class="fa fa-plus"></i></button>
+                    <div class="invalid-feedback">
+                    {% if errors.stock %}
+                    {% for error in errors.stock %}
+                        {{ error.message }}
+                    {% endfor %}
+                    {% endif %}       
+                    </div>                    
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
+            <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Volver</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
