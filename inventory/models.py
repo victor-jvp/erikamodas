@@ -37,7 +37,7 @@ class TransactionType(models.Model):
 
 
 class Transaction(models.Model):
-    date = models.DateTimeField()
+    date = models.DateField()
     type = models.ForeignKey(TransactionType, on_delete=models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
     amount = models.FloatField()

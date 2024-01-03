@@ -51,8 +51,8 @@
                     <button class="btn btn-outline-primary" type="button" id="button-addon2"><i
                         class="fa fa-plus"></i></button>
                     <div class="invalid-feedback">
-                    {% if errors.stock %}
-                    {% for error in errors.stock %}
+                    {% if errors.category %}
+                    {% for error in errors.category %}
                         {{ error.message }}
                     {% endfor %}
                     {% endif %}       

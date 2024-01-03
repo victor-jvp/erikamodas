@@ -1,4 +1,5 @@
 {% extends 'base.html' %} {% block content %}
+{% load static %}
 
 <h1>Transacción Nueva</h1>
 
@@ -8,15 +9,58 @@
             {% csrf_token %}
 
             <div class="mb-3">
-                <label for="name" class="form-label">Nombre</label>
-                <input type="text" class="form-control {% if errors.name %}is-invalid{% endif %}"
-                    name="name" id="name" placeholder="..." required>
-                <div class="invalid-feedback">
-                {% if errors.name %}
-                {% for error in errors.name %}
-                    {{ error.message }}
-                {% endfor %}
-                {% endif %}       
+                <label for="type" class="form-label">Tipo de Transacción</label>
+                <div class="input-group">
+                    <select type="text" class="form-select {% if errors.type %}is-invalid{% endif %}" 
+                        name="type" id="type"
+                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
+                        {% for item in types %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% empty %}
+                        <option value="">-No se encontraron registros-</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                    {% if errors.type %}
+                    {% for error in errors.type %}
+                        {{ error.message }}
+                    {% endfor %}
+                    {% endif %}       
+                    </div>                    
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Categoria</label>
+                <div class="input-group">
+                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" 
+                        name="category" id="category"
+                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
+                        {% for item in categories %}
+                        {% if forloop.first %}
+                        <option value="">-Seleccione-</option>
+                        {% endif %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% empty %}
+                        <option value="">-No se encontraron registros-</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                    {% if errors.category %}
+                    {% for error in errors.category %}
+                        {{ error.message }}
+                    {% endfor %}
+                    {% endif %}       
+                    </div>                    
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="product" class="form-label">Producto</label>
+                <div class="input-group">
+                    <select type="text" class="form-select" name="product" id="product" required>
+                        <option value="" selected>-Seleccione la categoria-</option>
+                    </select>                
                 </div>
             </div>
 
@@ -33,37 +77,57 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label for="category" class="form-label">Categoria</label>
-                <div class="input-group">
-                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" 
-                        name="category" id="category"
-                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
-                        {% for item in category %}
-                        {% if forloop.first %}
-                        <option value="">-Seleccione-</option>
-                        {% endif %}
-                        <option value="{{ item.id }}">{{ item.name }}</option>
-                        {% empty %}
-                        <option value="">-No se encontraron registros-</option>
-                        {% endfor %}
-                    </select>
-                    <button class="btn btn-outline-primary" type="button" id="button-addon2"><i
-                        class="fa fa-plus"></i></button>
-                    <div class="invalid-feedback">
-                    {% if errors.stock %}
-                    {% for error in errors.stock %}
-                        {{ error.message }}
-                    {% endfor %}
-                    {% endif %}       
-                    </div>                    
-                </div>
-            </div>
-
             <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
             <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Volver</a>
         </form>
     </div>
 </div>
 
+<script>
+    let category = $("#category"),
+        products = $("#product")
+
+    $(document).ready(function() {
+        
+        category.change(function() {
+            get_products(category.val())
+        })
+
+        
+    })
+
+    function get_products(category_id)
+    {
+        $.ajax({
+            type: 'GET',
+            url: "/inventory/ajax/products-by-category",
+            data: {
+                category_id: category_id
+            },
+            success: (resp) => {
+                let options = ""
+                if(resp.length > 0) {
+                    resp.forEach((e) => {
+                        options += `<option value="${e.id}">${e.name}</option>`
+                    })
+                }else{
+                    options = `<option value="" selected>-Sin productos registrados-</option>`
+                }
+                products.empty().append(options)
+            },
+            error: (resp) => {
+                console.error(resp)
+            }
+        })
+    }
+</script>
+
 {% endblock %}
+
+{% block custom_css %}
+
+{% endblock custom_css %}
+
+{% block custom_js %}
+
+{% endblock custom_js %}

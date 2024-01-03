@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
-from inventory.forms import ProductForm
-from .models import Category, Product, Transaction
+from django.shortcuts import redirect, render, get_object_or_404
+from inventory.forms import ProductForm, TransactionForm
+from .models import Category, Product, Transaction, TransactionType
 
 
 def index(request):
@@ -82,6 +82,14 @@ def ajax_transactions(request):
     }
     return JsonResponse(data)
 
+def ajax_products_by_category(request):
+    category_id = request.GET['category_id']
+    if category_id:
+        products = Product.objects.filter(category=category_id).values('id', 'name').order_by('name')
+    else:
+        products = []
+    return JsonResponse(list(products), safe=False)
+
 
 def transaction_index(request):
     return render(
@@ -93,23 +101,25 @@ def transaction_index(request):
 def transaction_create(request):
     errors = None
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = TransactionForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/inventory')
+            return redirect('product:transactions_index')
         else:
             errors = form.errors.as_data()
     else:
-        form = ProductForm()
+        form = TransactionForm()
 
-    category = Category.objects.all().order_by('name')
+    categories = Category.objects.all().order_by('name')
+    types = TransactionType.objects.values('id', 'name').order_by('order')
 
     return render(
         request,
         'transaction_create.html',
         {
             'form': form,
-            'category': category,
-            'errors': errors
+            'categories': categories,
+            'errors': errors,
+            'types': types
         }
     )

@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="{% static 'css/font-awesome-v4.css' %}">
     <!-- Jquery -->
     <script src="{% static 'js/jquery-3.7.0.js' %}"></script>
+    <!-- Extras CSS -->
+    {% block custom_css %}
+    {% endblock %}
     <title>Inventario</title>
   </head>
   <body>
@@ -37,5 +40,7 @@
     <!-- Datatable -->
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'js/dataTables.bootstrap5.min.js' %}"></script>
+    {% block custom_js %}
+    {% endblock %}
   </body>
 </html>
