@@ -12,7 +12,7 @@ class ProductAdmin(admin.ModelAdmin):
     
     
 class TransactionTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('id', 'name', 'order')
 
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'date', 'type', 'product')
