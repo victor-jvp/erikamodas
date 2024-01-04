@@ -10,4 +10,4 @@ class ProductForm(ModelForm):
 class TransactionForm(ModelForm):
     class Meta:
         model = models.Transaction
-        fields = ['date', 'type', 'product', 'amount']
+        fields = ['type', 'product', 'amount']

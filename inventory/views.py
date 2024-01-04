@@ -77,7 +77,7 @@ def create(request):
 
 def ajax_transactions(request):
     transactions = Transaction.objects.values(
-        'date', 'type', 'product', 'amount')
+        'type', 'product', 'amount')
     data = {
         'data': list(transactions)
     }

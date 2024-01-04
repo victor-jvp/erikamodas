@@ -5,32 +5,45 @@
 
 <div class="card mt-3">
     <div class="card-body">
-        <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar
-                Transacción</button>
-            <a href="{% url 'product:transaction_index' %}" class="btn btn-outline-danger"><i class="fa fa-times"></i>
-                Cancelar</a>
+
+        <div class="row mb-3">
+            <div class="d-flex justify-content-end gap-1">
+                <button type="button" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar
+                    Transacción</button>
+                <a href="{% url 'product:transaction_index' %}" class="btn btn-outline-danger"><i class="fa fa-times"></i>
+                    Cancelar
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col">
+                <label for="date" class="form-label">Fecha</label>
+                <input type="date" class="form-control" value="{% now 'Y-m-d' %}" name="date" id="date">
+            </div>
+            <div class="col">
+                <label for="comment" class="form-label">Observaciones</label>
+                <textarea class="form-control" name="comment" id="comment" cols="10" rows="1"></textarea>
+            </div>
         </div>
 
         <div class="mb-3 row">
             <div class="col">
                 <label for="type" class="form-label">Tipo de Transacción</label>
-                <div class="input-group">
-                    <select type="text" class="form-select {% if errors.type %}is-invalid{% endif %}" id="type"
-                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
-                        {% for item in types %}
-                        <option value="{{ item.id }}">{{ item.name }}</option>
-                        {% empty %}
-                        <option value="">-No se encontraron registros-</option>
-                        {% endfor %}
-                    </select>
-                    <div class="invalid-feedback">
-                        {% if errors.type %}
-                        {% for error in errors.type %}
-                        {{ error.message }}
-                        {% endfor %}
-                        {% endif %}
-                    </div>
+                <select type="text" class="form-select {% if errors.type %}is-invalid{% endif %}" id="type"
+                    placeholder="..." aria-label="..." aria-describedby="button-addon2">
+                    {% for item in types %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% empty %}
+                    <option value="">-No se encontraron registros-</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                    {% if errors.type %}
+                    {% for error in errors.type %}
+                    {{ error.message }}
+                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             <div class="col">
@@ -183,7 +196,7 @@
             return;
         }
 
-        cantidad = (type.val() == 'E' ) ? amount.val() : amount.val() * -1
+        cantidad = (type.val() == 'E') ? amount.val() : amount.val() * -1
 
         table.row.add([
             `<input type="hidden" name="type[]" value="${type.val()}"> ${type.find('option:selected').text()}`,
