@@ -40,6 +40,17 @@
     <!-- Datatable -->
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'js/sweetalert.js' %}"></script>
+    <script>
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+    {% block messages %}
+      {% for m in messages %}
+        <script>Swal.fire('Aviso', m, 'info')</script>
+      {% endfor %}
+    {% endblock %}
+
     {% block custom_js %}
     {% endblock %}
   </body>

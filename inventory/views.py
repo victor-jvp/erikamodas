@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from inventory.forms import ProductForm, TransactionForm
 from .models import Category, Product, Transaction, TransactionType
+from django.contrib import messages
 
 
 def index(request):
