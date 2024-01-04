@@ -6,11 +6,13 @@
 <div class="card mt-3">
     <div class="card-body">
 
-        <div class="row mb-3">
+        <div class="row">
             <div class="d-flex justify-content-end gap-1">
-                <button type="button" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar
-                    Transacción</button>
-                <a href="{% url 'product:transaction_index' %}" class="btn btn-outline-danger"><i class="fa fa-times"></i>
+                <button type="button" class="btn btn-outline-success" onclick="saveTransaction()">
+                    <i class="fa fa-save"></i> Guardar Transacción
+                </button>
+                <a href="{% url 'product:transaction_index' %}" class="btn btn-outline-danger"><i
+                        class="fa fa-times"></i>
                     Cancelar
                 </a>
             </div>
@@ -19,11 +21,12 @@
         <div class="mb-3 row">
             <div class="col">
                 <label for="date" class="form-label">Fecha</label>
-                <input type="date" class="form-control" value="{% now 'Y-m-d' %}" name="date" id="date">
+                <input type="date" class="form-control" name="date" id="date" value="{% now 'Y-m-d' %}">
             </div>
             <div class="col">
                 <label for="comment" class="form-label">Observaciones</label>
-                <textarea class="form-control" name="comment" id="comment" cols="10" rows="1"></textarea>
+                <textarea class="form-control" name="comment" id="comment" cols="10" rows="1"
+                    placeholder="..."></textarea>
             </div>
         </div>
 
@@ -103,11 +106,10 @@
 
         <hr>
 
-        <h4>Productos en Transacción</h4>
-
-        <form action="{% url 'product:transaction_create' %}" method="post">
+        <form action="{% url 'product:transaction_create' %}" method="post" id="form">
             {% csrf_token %}
 
+            <h4>Productos en Transacción</h4>
             <div class="mb-3 table-responsive">
                 <table class="table table-striped table-hover table-sm" id="table">
                     <thead>
@@ -120,9 +122,17 @@
                         </tr>
                     </thead>
                     <tbody></tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
-
         </form>
     </div>
 </div>
@@ -131,7 +141,18 @@
         type = $("#type"),
         category = $("#category"),
         product = $("#product"),
-        amount = $("#amount")
+        amount = $("#amount"),
+        form = $("#form")
+
+    $.fn.dataTable.Api.register( 'sum()', function () {
+        var sum = 0;
+        
+        for ( var i=0, ien=this.length ; i<ien ; i++ ) {
+            sum += this[i];
+        }
+        
+        return sum;
+    } );
 
     $(document).ready(function () {
 
@@ -147,13 +168,31 @@
             columnDefs: [
                 { targets: "_all", className: 'text-center' },
                 { targets: -1, orderable: false },
-            ]
+            ],
+            columns: [
+                {name: 'type'},
+                {name: 'category'},
+                {name: 'product'},
+                {name: 'amount'},
+                {name: 'action'},
+            ],
+            drawCallBack: function(settings) {
+                const api = this.api()
+                const totalAmount = table.column('amount').data().sum()
+                console.log(totalAmount)
+                $(api.table().footer()).html()
+            }
         })
 
         amount.keyup(function (e) {
             if (e.key === 'Enter') {
                 addProduct()
             }
+        })
+
+        form.submit(function (f) {
+            f.preventDefault()
+            saveTransaction()
         })
     })
 
@@ -196,7 +235,7 @@
             return;
         }
 
-        cantidad = (type.val() == 'E') ? amount.val() : amount.val() * -1
+        cantidad = (type.val() == 1) ? amount.val() : amount.val() * -1
 
         table.row.add([
             `<input type="hidden" name="type[]" value="${type.val()}"> ${type.find('option:selected').text()}`,
@@ -212,6 +251,15 @@
     function clearFields() {
         amount.val(null)
         product.val(null)
+    }
+
+    function saveTransaction() {
+        if (table.rows().count() == 0) {
+            Swal.fire('Aviso.', 'No se encuentran datos registrados para guardar', 'error');
+            return;
+        }
+
+        console.log(form.serialize())
     }
 </script>
 
