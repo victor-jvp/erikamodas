@@ -6,6 +6,9 @@
 <div class="card mt-3">
     <div class="card-body">
 
+        <form action="{% url 'product:transaction_create' %}" method="POST" id="form">
+            {% csrf_token %}
+
         <div class="row">
             <div class="d-flex justify-content-end gap-1">
                 <button type="button" class="btn btn-outline-success" onclick="saveTransaction()">
@@ -88,9 +91,8 @@
                 <div class="input-group">
                     <input type="number" class="form-control {% if errors.name %}is-invalid{% endif %}" id="amount"
                         placeholder="0.00">
-                    <button class="btn btn-primary" type="button" id="button-addon2" data-bs-toggle="tooltip"
-                        data-bs-placement="top" onclick="addProduct()"
-                        data-bs-title="Agregar producto y cantidad a la transacción">
+                    <button class="btn btn-primary" type="button" id="button-addon2" onclick="addProduct()"
+                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Agregar producto y cantidad a la transacción">
                         <i class="fa fa-plus"></i>
                     </button>
                     <div class="invalid-feedback">
@@ -105,10 +107,6 @@
         </div>
 
         <hr>
-
-        <form action="{% url 'product:transaction_create' %}" method="post" id="form">
-            {% csrf_token %}
-
             <h4>Productos en Transacción</h4>
             <div class="mb-3 table-responsive">
                 <table class="table table-striped table-hover table-sm" id="table">
@@ -123,12 +121,10 @@
                     </thead>
                     <tbody></tbody>
                     <tfoot>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                        <tr class="table-secondary">
+                            <th colspan="3"></th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -138,21 +134,13 @@
 </div>
 <script>
     let table = null,
+        date = $("#date"),
+        comment = $("#comment"),
         type = $("#type"),
         category = $("#category"),
         product = $("#product"),
         amount = $("#amount"),
         form = $("#form")
-
-    $.fn.dataTable.Api.register( 'sum()', function () {
-        var sum = 0;
-        
-        for ( var i=0, ien=this.length ; i<ien ; i++ ) {
-            sum += this[i];
-        }
-        
-        return sum;
-    } );
 
     $(document).ready(function () {
 
@@ -166,7 +154,8 @@
             },
             dom: 'btr',
             columnDefs: [
-                { targets: "_all", className: 'text-center' },
+                { targets: [0,1,2,-1], className: 'text-center' },
+                { targets: 3, className: 'text-end' },
                 { targets: -1, orderable: false },
             ],
             columns: [
@@ -176,12 +165,28 @@
                 {name: 'amount'},
                 {name: 'action'},
             ],
-            drawCallBack: function(settings) {
-                const api = this.api()
-                const totalAmount = table.column('amount').data().sum()
-                console.log(totalAmount)
-                $(api.table().footer()).html()
-            }
+            footerCallback: function (row, data, start, end, display) {
+                let api = this.api();
+
+                // Remove the formatting to get integer data for summation
+                let intVal = function (i) {
+                    return typeof i === 'string'
+                        ? i.replace(/[\$,]/g, '') * 1
+                        : typeof i === 'number'
+                            ? i
+                            : 0;
+                };
+
+                // Total over all pages
+                total = api
+                    .column(3)
+                    .data()
+                    .reduce((a, b) => intVal(a) + intVal(b), 0);
+
+                // Update footer
+                api.column(3).footer().innerHTML =
+                  'Total: '+total;
+            },
         })
 
         amount.keyup(function (e) {
@@ -238,14 +243,24 @@
         cantidad = (type.val() == 1) ? amount.val() : amount.val() * -1
 
         table.row.add([
-            `<input type="hidden" name="type[]" value="${type.val()}"> ${type.find('option:selected').text()}`,
-            `<input type="hidden" name="category[]" value="${category.val()}"> ${category.find('option:selected').text()}`,
-            `<input type="hidden" name="product[]" value="${product.val()}"> ${product.find('option:selected').text()}`,
-            `<input type="hidden" name="amount[]" value="${amount.val()}"> ${cantidad}`,
-            '',
+            `<input type="hidden" name="amount" value="${amount.val()}">
+             <input type="hidden" name="type" value="${type.val()}"> ${type.find('option:selected').text()}`,
+            `<input type="hidden" name="category" value="${category.val()}"> ${category.find('option:selected').text()}`,
+            `<input type="hidden" name="product" value="${product.val()}"> ${product.find('option:selected').text()}`,
+            `${cantidad}`,
+            `<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Remover" onclick="removeProduct(this)"><i class="fa fa-trash"></i></button>`,
         ]).draw()
 
+        // Recargar tooltip para mostrarlo en los botones de eliminar
+        
+
         clearFields()
+    }
+
+    function removeProduct(e)
+    {
+        const row = table.rows(e)
+        console.log(row)
     }
 
     function clearFields() {
@@ -259,7 +274,17 @@
             return;
         }
 
-        console.log(form.serialize())
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: (resp) => {
+                console.log(resp)
+            },
+            error: (resp) => {
+                console.error(resp)
+            }
+        })
     }
 </script>
 

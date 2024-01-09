@@ -102,14 +102,14 @@ def transaction_index(request):
 def transaction_create(request):
     errors = None
     if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('product:transactions_index')
-        else:
-            errors = form.errors.as_data()
-    else:
-        form = TransactionForm()
+        print(request.POST)
+        # form = TransactionForm(request.POST)
+        # print(form)
+        # if form.is_valid():
+            # form.save()
+            # return redirect('product:transactions_index')
+        # else:
+            # errors = form.errors.as_data()
 
     categories = Category.objects.all().order_by('name')
     types = TransactionType.objects.values('id', 'name').order_by('order')
@@ -118,7 +118,6 @@ def transaction_create(request):
         request,
         'transaction_create.html',
         {
-            'form': form,
             'categories': categories,
             'errors': errors,
             'types': types
