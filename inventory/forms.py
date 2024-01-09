@@ -2,12 +2,21 @@ from . import models
 from django.forms import ModelForm
 
 
-class ProductForm(ModelForm):
+class CreateProductForm(ModelForm):
     class Meta:
         model = models.Product
-        fields = ['name', 'stock', 'category']
+        fields = ['name', 'category', 'stock']
+
+
+class EditProductForm(ModelForm):
+    class Meta:
+        model = models.Product
+        fields = ['name', 'category']
+
 
 class TransactionForm(ModelForm):
     class Meta:
         model = models.Transaction
-        fields = ['type', 'product', 'amount']
+        fields = ['cab_id', 'type', 'product', 'amount']
+    # def save(self, *args, **kwargs):
+        

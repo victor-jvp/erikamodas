@@ -3,16 +3,16 @@ from .models import Category, Product, Transaction, TransactionType
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('name', )
 
 
 class ProductAdmin(admin.ModelAdmin):
     exclude = ('created_at', )
-    list_display = ('id', 'name', 'stock', 'created_at')
+    list_display = ('name', 'stock', 'created_at')
     
     
 class TransactionTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'order')
+    list_display = ('name', 'order')
 
 
 admin.site.register(Category, CategoryAdmin)
