@@ -52,6 +52,11 @@ INSTALLED_APPS = [
     "inventory.apps.InventoryConfig",
 ]
 
+AUTH_USER_MODEL = "inventory.CustomUser"  # Custom User Model
+LOGIN_URL = "signin"
+LOGIN_REDIRECT_URL = "signin"
+LOGOUT_REDIRECT_URL = "signin"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

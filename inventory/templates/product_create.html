@@ -32,34 +32,7 @@
                 {% endif %}       
                 </div>
             </div>
-
-            <div class="mb-3">
-                <label for="category" class="form-label">Categoria</label>
-                <div class="input-group">
-                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" 
-                        name="category" id="category"
-                        placeholder="..." aria-label="..." aria-describedby="button-addon2">
-                        {% for item in category %}
-                        {% if forloop.first %}
-                        <option value="">-Seleccione-</option>
-                        {% endif %}
-                        <option value="{{ item.id }}">{{ item.name }}</option>
-                        {% empty %}
-                        <option value="">-No se encontraron registros-</option>
-                        {% endfor %}
-                    </select>
-                    <button class="btn btn-outline-primary" type="button" id="button-addon2"><i
-                        class="fa fa-plus"></i></button>
-                    <div class="invalid-feedback">
-                    {% if errors.category %}
-                    {% for error in errors.category %}
-                        {{ error.message }}
-                    {% endfor %}
-                    {% endif %}       
-                    </div>                    
-                </div>
-            </div>
-
+            
             <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
             <a href="{% url 'product:index' %}" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Volver</a>
         </form>

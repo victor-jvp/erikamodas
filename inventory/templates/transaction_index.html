@@ -46,7 +46,16 @@
         ajax: {
             type: 'GET',
             url: '{% url "product:ajax_transactions" %}'
-        }
+        },
+        columns: [
+          { data: 'date' },
+          { data: 'type' },
+          { data: 'product' },
+          { data: 'amount' },
+          { data: null, render: () => {
+            return ''
+          }},
+        ]
       })
     })
   </script>

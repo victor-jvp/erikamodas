@@ -1,7 +1,9 @@
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from inventory.forms import CustomUserCreationForm as UserCreationForm, CustomUserAuthenticationForm as AuthenticationForm
+# from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from inventory.models import CustomUser as User
+# from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 

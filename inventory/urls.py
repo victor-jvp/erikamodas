@@ -10,6 +10,5 @@ urlpatterns = [
     path('<int:product_id>/edit', views.edit, name='edit'),
     path('transactions/', views.transaction_index, name='transaction_index'),
     path('transactions/create', views.transaction_create, name='transaction_create'),
-    path('ajax/transactions', views.ajax_transactions, name='ajax_transactions'),
-    path('ajax/products-by-category', views.ajax_products_by_category, name='ajax_products_by_category'),
+    path('ajax/transactions', views.ajax_transactions, name='ajax_transactions')
 ]

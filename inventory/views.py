@@ -2,7 +2,7 @@ import datetime
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from inventory.forms import CreateProductForm, EditProductForm, TransactionForm
-from .models import Category, Product, Transaction, TransactionType, TransactionCab
+from .models import Product, TransactionDet, TransactionCab
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -40,18 +40,30 @@ def edit(request, product_id):
         form.save()
         return HttpResponseRedirect('/inventory')
 
-    category = Category.objects.all().order_by('name')
-
     return render(
         request,
         'product_edit.html',
         {
             'product': product,
-            'category': category,
             'errors': errors
         }
     )
 
+
+def create_first_transaction(request, product):
+    transaction_cab = TransactionCab.objects.create(
+        date=datetime.datetime.now(),
+        location=request.user.location,
+        comment="Stock inicial",
+        created_by=request.user)
+    transaction_cab.save()
+    transaction_det = TransactionDet.objects.create(
+        cab=transaction_cab,
+        type="E",
+        product=product,
+        amount=request.POST['stock']
+    )
+    transaction_det.save()
 
 @login_required
 def create(request):
@@ -59,35 +71,19 @@ def create(request):
     if request.method == 'POST':
         form = CreateProductForm(request.POST)
         if form.is_valid():
-            form.save()
-            
-            # transaction_cab = TransactionCab(
-            #     date=datetime.datetime.now(),
-            #     comment='Producto nuevo',
-            #     created_by=request.user)
-            # transaction_cab.save()
-            
-            # transaction_det = Transaction(
-            #     cab_id=transaction_cab,
-            #     type=TransactionType(pk=1),
-            #     product=Product.objects.filter(pk=form.id),
-            #     amount=request.POST['stock'])
-            # transaction_det.save()
-            
+            new_product = form.save()
+            create_first_transaction(request, product=new_product)
             return HttpResponseRedirect('/inventory')
         else:
             errors = form.errors.as_data()
     else:
         form = CreateProductForm()
 
-    category = Category.objects.all().order_by('name')
-
     return render(
         request,
         'product_create.html',
         {
             'form': form,
-            'category': category,
             'errors': errors
         }
     )
@@ -95,22 +91,22 @@ def create(request):
 
 @login_required
 def ajax_transactions(request):
-    transactions = Transaction.objects.values(
-        'type', 'product', 'amount')
-    data = {
-        'data': list(transactions)
+    transactions = TransactionDet.objects.all()
+    data = []
+    types = {
+        'E': 'Entrada',
+        'S': 'Salida',
+        'A': 'Ajuste'
     }
-    return JsonResponse(data)
+    for item in transactions:
+        data.append({
+            'date': item.cab.date.strftime("%d/%m/%Y"),
+            'type': types[item.type],
+            'product': item.product.name,
+            'amount': item.amount          
+        })
 
-
-@login_required
-def ajax_products_by_category(request):
-    category_id = request.GET['category_id']
-    if category_id:
-        products = Product.objects.filter(category=category_id).values('id', 'name').order_by('name')
-    else:
-        products = []
-    return JsonResponse(list(products), safe=False)
+    return JsonResponse({ 'data': data }, safe=False)
 
 
 @login_required
@@ -130,14 +126,15 @@ def transaction_create(request):
                 date=request.POST['date'],
                 comment=request.POST['comment'],
                 created_by=request.user
-                ).save()
-            
-            transaction = TransactionForm(request.POST, instance=Transaction)
+            ).save()
+
+            transaction = TransactionForm(
+                request.POST, instance=TransactionDet)
             print(transaction)
-            transaction.cab_id = cab
-                
-            Transaction.objects.bulk_create(transaction).save()
-            
+            transaction.cab = cab
+
+            TransactionDet.objects.bulk_create(transaction).save()
+
             resp = {
                 'title': 'Completado!',
                 'text': 'La transacción fue procesada correctamente',
@@ -153,16 +150,12 @@ def transaction_create(request):
             }
 
         return JsonResponse(resp)
-    else:  
-        categories = Category.objects.all().order_by('name')
-        types = TransactionType.objects.values('id', 'name').order_by('order')
+    else:
 
         return render(
             request,
             'transaction_create.html',
             {
-                'categories': categories,
                 'errors': errors,
-                'types': types
             }
         )
