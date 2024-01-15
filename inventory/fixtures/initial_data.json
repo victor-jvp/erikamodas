@@ -1,0 +1,18 @@
+[
+  {
+    "model": "inventory.TransactionType",
+    "pk": 1,
+    "fields": {
+      "name": "Entrada",
+      "isActive": 1
+    }
+  },
+  {
+    "model": "inventory.TransactionType",
+    "pk": 2,
+    "fields": {
+      "name": "Salida",
+      "isActive": 1
+    }
+  }
+]

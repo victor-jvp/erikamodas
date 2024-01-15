@@ -32,18 +32,32 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class TransactionType(models.Model):
+    name = models.CharField(max_length=3)
+    isActive = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class TransactionCab(models.Model):
     date = models.DateField()
-    location = models.ForeignKey(Location, models.RESTRICT)
     comment = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.RESTRICT)
+    
+    class Meta:
+        db_table="transactions_cab"
 
 
 class TransactionDet(models.Model):
-    cab = models.ForeignKey(TransactionCab, models.CASCADE)
-    type = models.CharField(max_length=3)
+    cab = models.ForeignKey(TransactionCab, related_name="details", on_delete=models.CASCADE)
+    type = models.ForeignKey(TransactionType, on_delete=models.RESTRICT)
+    location = models.ForeignKey(Location, models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
     amount = models.FloatField()
+    
+    class Meta:
+        db_table = "transactions_det"

@@ -38,7 +38,7 @@
                 <label for="type" class="form-label">Tipo de Transacción</label>
                 <select type="text" class="form-select {% if errors.type %}is-invalid{% endif %}" id="type"
                     placeholder="..." aria-label="..." aria-describedby="button-addon2">
-                    {% for item in types %}
+                    {% for item in context.types %}
                     <option value="{{ item.id }}">{{ item.name }}</option>
                     {% empty %}
                     <option value="">-No se encontraron registros-</option>
@@ -53,20 +53,20 @@
                 </div>
             </div>
             <div class="col">
-                <label for="category" class="form-label">Categoria</label>
+                <label for="almacen" class="form-label">Almacén</label>
                 <div class="input-group">
-                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" id="category"
+                    <select type="text" class="form-select {% if errors.name %}is-invalid{% endif %}" id="almacen"
                         placeholder="..." aria-label="..." aria-describedby="button-addon2">
-                        {% for item in categories %}
+                        {% for item in context.locations %}
                         {% if forloop.first %}
                         <option value="">-Seleccione-</option>
                         {% endif %}
-                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        <option {% if user.location.id == item.id %}selected{% endif %} value="{{ item.id }}">{{ item.name }}</option>
                         {% empty %}
                         <option value="">-No se encontraron registros-</option>
                         {% endfor %}
                     </select>
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback">  
                         {% if errors.category %}
                         {% for error in errors.category %}
                         {{ error.message }}
@@ -82,7 +82,14 @@
                 <label for="product" class="form-label">Producto</label>
                 <div class="input-group">
                     <select type="text" class="form-select" id="product">
-                        <option value="" selected>-Seleccione la categoria-</option>
+                        {% for item in context.products %}
+                        {% if forloop.first %}
+                        <option value="">-Seleccione-</option>
+                        {% endif %}
+                        <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% empty %}
+                        <option value="">-No se encontraron registros-</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -113,7 +120,7 @@
                     <thead>
                         <tr class="table-secondary">
                             <th>Transacción</th>
-                            <th>Categoria</th>
+                            <th>Almacén</th>
                             <th>Producto</th>
                             <th>Cantidad</th>
                             <th>Acciones</th>
@@ -137,16 +144,12 @@
         date = $("#date"),
         comment = $("#comment"),
         type = $("#type"),
-        category = $("#category"),
+        almacen = $("#almacen"),
         product = $("#product"),
         amount = $("#amount"),
         form = $("#form")
 
     $(document).ready(function () {
-
-        category.change(function () {
-            getProducts(category.val())
-        })
 
         table = $("#table").DataTable({
             language: {
@@ -201,31 +204,6 @@
         })
     })
 
-    function getProducts(category_id) {
-        $.ajax({
-            type: 'GET',
-            url: "/inventory/ajax/products-by-category",
-            data: {
-                category_id: category_id
-            },
-            success: (resp) => {
-                let options = ""
-                if (resp.length > 0) {
-                    options = `<option value="" selected>-Seleccione-</option>`
-                    resp.forEach((e) => {
-                        options += `<option value="${e.id}">${e.name}</option>`
-                    })
-                } else {
-                    options = `<option value="" selected>-Sin productos registrados-</option>`
-                }
-                product.empty().append(options)
-            },
-            error: (resp) => {
-                console.error(resp)
-            }
-        })
-    }
-
     function addProduct() {
         if (!product.val()) {
             Swal.fire('Aviso', 'El campo <b>Producto</b> es requerido.', 'warning').then(() => {
@@ -245,7 +223,7 @@
         table.row.add([
             `<input type="hidden" name="amount" value="${amount.val()}">
              <input type="hidden" name="type" value="${type.val()}"> ${type.find('option:selected').text()}`,
-            `<input type="hidden" name="category" value="${category.val()}"> ${category.find('option:selected').text()}`,
+            `<input type="hidden" name="location" value="${almacen.val()}"> ${almacen.find('option:selected').text()}`,
             `<input type="hidden" name="product" value="${product.val()}"> ${product.find('option:selected').text()}`,
             `${cantidad}`,
             `<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Remover" onclick="removeProduct(this)"><i class="fa fa-trash"></i></button>`,
@@ -259,8 +237,7 @@
 
     function removeProduct(e)
     {
-        const row = table.rows(e)
-        console.log(row)
+        table.row($(e).parents('tr')).remove().draw()
     }
 
     function clearFields() {

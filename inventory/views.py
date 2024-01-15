@@ -2,12 +2,18 @@ import datetime
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from inventory.forms import CreateProductForm, EditProductForm, TransactionForm
-from .models import Product, TransactionDet, TransactionCab
+from .models import Location, Product, TransactionDet, TransactionCab, TransactionType
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
-
+# Tipos de transacción
+types = {
+    'E': 'Entrada',
+    'S': 'Salida',
+    'A': 'Ajuste'
+}
+    
 @login_required
 def index(request):
     products = Product.objects.all()
@@ -53,13 +59,13 @@ def edit(request, product_id):
 def create_first_transaction(request, product):
     transaction_cab = TransactionCab.objects.create(
         date=datetime.datetime.now(),
-        location=request.user.location,
         comment="Stock inicial",
         created_by=request.user)
     transaction_cab.save()
     transaction_det = TransactionDet.objects.create(
         cab=transaction_cab,
-        type="E",
+        type=TransactionType.objects.get(id=1), # Entrada
+        location=request.user.location,
         product=product,
         amount=request.POST['stock']
     )
@@ -91,21 +97,13 @@ def create(request):
 
 @login_required
 def ajax_transactions(request):
-    transactions = TransactionDet.objects.all()
+    cab = TransactionCab.objects.all()
     data = []
-    types = {
-        'E': 'Entrada',
-        'S': 'Salida',
-        'A': 'Ajuste'
-    }
-    for item in transactions:
+    for item in cab:        
         data.append({
-            'date': item.cab.date.strftime("%d/%m/%Y"),
-            'type': types[item.type],
-            'product': item.product.name,
-            'amount': item.amount          
+            'date': item.date.strftime("%d/%m/%Y"),
+            'details': list(item.details.values("product__name", "type__name", "location__name", "amount")),
         })
-
     return JsonResponse({ 'data': data }, safe=False)
 
 
@@ -120,6 +118,7 @@ def transaction_index(request):
 @login_required
 def transaction_create(request):
     errors = None
+    
     if request.method == 'POST':
         try:
             cab = TransactionCab(
@@ -128,12 +127,11 @@ def transaction_create(request):
                 created_by=request.user
             ).save()
 
-            transaction = TransactionForm(
-                request.POST, instance=TransactionDet)
-            print(transaction)
-            transaction.cab = cab
+            det = TransactionForm(request.POST, instance=TransactionDet)
+            
+            det.cab = cab
 
-            TransactionDet.objects.bulk_create(transaction).save()
+            TransactionDet.objects.bulk_create(det).save()
 
             resp = {
                 'title': 'Completado!',
@@ -151,11 +149,18 @@ def transaction_create(request):
 
         return JsonResponse(resp)
     else:
-
+        types = TransactionType.objects.all()
+        locations = Location.objects.all()
+        products = Product.objects.all()
         return render(
             request,
             'transaction_create.html',
             {
                 'errors': errors,
+                'context': {
+                    'types': types,
+                    'locations': locations,
+                    'products': products
+                }
             }
         )

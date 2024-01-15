@@ -35,6 +35,6 @@ class EditProductForm(ModelForm):
 class TransactionForm(ModelForm):
     class Meta:
         model = TransactionDet
-        fields = ['cab', 'type', 'product', 'amount']
+        fields = ['cab', 'type', 'product', 'location', 'amount']
     # def save(self, *args, **kwargs):
         

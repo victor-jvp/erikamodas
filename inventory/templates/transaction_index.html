@@ -18,13 +18,23 @@
 
             <div class="row">
                 <div class="col-md-12 table-responsive">
-                    <table class="table table-striped table-bordered" id="table">
+                    <table class="table table-striped table-bordered table-sm" id="table">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Tipo de Transacción</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
+                                <th>
+                                  Detalles
+                                  <table class="table table-sm">
+                                    <thead>
+                                      <tr>
+                                        <th class="text-center">Almacén</th>
+                                        <th class="text-center">Producto</th>
+                                        <th class="text-center">Transacción</th>
+                                        <th class="text-center">Cantidad</th>
+                                      </tr>
+                                    </thead>
+                                  </table>
+                                </th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -49,12 +59,29 @@
         },
         columns: [
           { data: 'date' },
-          { data: 'type' },
-          { data: 'product' },
-          { data: 'amount' },
-          { data: null, render: () => {
-            return ''
-          }},
+          { 
+            data: 'details', render: (d,t,r) => {
+              let rows = ''
+              d.forEach( (e) => {
+                rows += `<tr>
+                  <td class="text-start">${e.location__name}</td>
+                  <td class="text-start">${e.product__name}</td>
+                  <td class="text-start">${e.type__name}</td>
+                  <td class="text-end">${e.amount}</td>
+                </tr>`
+              });
+              return `<table class="table table-sm m-0 table-bordered">${rows}</table>`;
+            }
+          },
+          { 
+            data: null, render: () => {
+              return '<a href="#" class="btn btn-sm btn-primary"><i class="fa fa-link"></i></button>'
+            }
+        },
+        ],
+        columnDefs: [
+          { targets: '_all', className: 'text-center'},
+          { targets: [-1, -2], orderable: false }
         ]
       })
     })
