@@ -40,7 +40,9 @@ def signup(request):
 
 
 def signin(request):
-    if request.method == 'GET':
+    if request.user.is_authenticated:
+        return redirect('home')
+    elif request.method == 'GET':
         return render(request, 'signin.html', {
             'form': AuthenticationForm
         })
