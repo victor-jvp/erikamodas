@@ -83,6 +83,9 @@
         columnDefs: [
           { targets: '_all', className: 'text-center'},
           { targets: [-1, -2], orderable: false }
+        ],
+        sorting: [
+          [0, 'desc']
         ]
       })
     })
@@ -91,7 +94,7 @@
 {% endblock %}
 
 {% block custom_css %}
-<link rel="stylesheet" href="{% static 'css/responsive.bootstrap.min.css'%}">
+<link rel="stylesheet" href="{% static 'css/responsive.bootstrap5.min.css'%}">
 {% endblock %}
 
 {% block custom_js %}

@@ -1,6 +1,7 @@
 from .models import Product, TransactionCab, TransactionDet, CustomUser
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.forms import inlineformset_factory
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -38,3 +39,10 @@ class TransactionForm(ModelForm):
         fields = ['cab', 'type', 'product', 'location', 'amount']
     # def save(self, *args, **kwargs):
         
+
+TransactionInlineFormset = inlineformset_factory(
+    TransactionCab,
+    TransactionDet,
+    form=TransactionForm,
+    extra=2
+)

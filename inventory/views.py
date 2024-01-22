@@ -1,10 +1,9 @@
 import datetime
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
-from inventory.forms import CreateProductForm, EditProductForm, TransactionForm
+from inventory.forms import CreateProductForm, EditProductForm, TransactionForm, TransactionInlineFormset
 from .models import Location, Product, TransactionDet, TransactionCab, TransactionType
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 # Tipos de transacción
@@ -118,26 +117,30 @@ def transaction_index(request):
 @login_required
 def transaction_create(request):
     errors = None
+    formset = TransactionInlineFormset()
     
     if request.method == 'POST':
         try:
-            cab = TransactionCab(
+            transaction_cab = TransactionCab.objects.create(
                 date=request.POST['date'],
                 comment=request.POST['comment'],
-                created_by=request.user
-            ).save()
-
-            det = TransactionForm(request.POST, instance=TransactionDet)
-            
-            det.cab = cab
-
-            TransactionDet.objects.bulk_create(det).save()
-
-            resp = {
-                'title': 'Completado!',
-                'text': 'La transacción fue procesada correctamente',
-                'type': 'success'
-            }
+                created_by=request.user)
+            transaction_cab.save()
+            formset = TransactionInlineFormset(request.POST, instance=transaction_cab)
+            if formset.is_valid():
+                formset.save()
+                resp = {
+                    'title': 'Completado!',
+                    'text': 'La transacción fue procesada correctamente',
+                    'icon': 'success'
+                }
+            else:
+                resp = {
+                    'title': 'Aviso!',
+                    'text': 'La transacción no es válida para procesar, verifique los campos e intente nuevamente.',
+                    'icon': 'warning',
+                    'errors': formset.errors
+                }
         except Exception as ex:
             print(ex)
             resp = {
@@ -160,7 +163,8 @@ def transaction_create(request):
                 'context': {
                     'types': types,
                     'locations': locations,
-                    'products': products
+                    'products': products,
+                    'formset': formset,
                 }
             }
         )
