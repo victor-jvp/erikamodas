@@ -1,6 +1,6 @@
 import datetime
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from inventory.forms import CreateProductForm, EditProductForm, TransactionForm, TransactionInlineFormset
 from .models import Location, Product, TransactionDet, TransactionCab, TransactionType
 from django.contrib import messages
@@ -101,6 +101,7 @@ def ajax_transactions(request):
     for item in cab:        
         data.append({
             'date': item.date.strftime("%d/%m/%Y"),
+            'comment': item.comment,
             'details': list(item.details.values("product__name", "type__name", "location__name", "amount")),
         })
     return JsonResponse({ 'data': data }, safe=False)

@@ -54,7 +54,7 @@ class TransactionCab(models.Model):
 
 class TransactionDet(models.Model):
     cab = models.ForeignKey(TransactionCab, related_name="details", on_delete=models.CASCADE)
-    type = models.ForeignKey(TransactionType, on_delete=models.RESTRICT)
+    type = models.CharField(max_length=3)
     location = models.ForeignKey(Location, models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
     amount = models.FloatField()

@@ -22,6 +22,7 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
+                                <th>Comentario</th>
                                 <th>
                                   Detalles
                                   <table class="table table-sm">
@@ -35,7 +36,6 @@
                                     </thead>
                                   </table>
                                 </th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -60,25 +60,22 @@
         },
         columns: [
           { data: 'date' },
+          { data: 'comment' },
           { 
             data: 'details', render: (d,t,r) => {
               let rows = ''
               d.forEach( (e) => {
                 rows += `<tr>
-                  <td class="text-start">${e.location__name}</td>
-                  <td class="text-start">${e.product__name}</td>
-                  <td class="text-start">${e.type__name}</td>
-                  <td class="text-end">${e.amount}</td>
+                  <td class="text-center" width="25%">${e.location__name}</td>
+                  <td class="text-start" width="25%"><b>${e.product__name}<b/></td>
+                  <td class="text-center" width="25%">${e.type__name}</td>
+                  <td class="text-end" width="25%">${e.amount}</td>
                 </tr>`
               });
               return `<table class="table table-sm m-0 table-bordered">${rows}</table>`;
             }
           },
-          { 
-            data: null, width: '10%', render: () => {
-              return '<a href="#" class="btn btn-sm btn-primary"><i class="fa fa-link"></i></button>'
-            }
-        },
+          
         ],
         columnDefs: [
           { targets: '_all', className: 'text-center'},

@@ -284,8 +284,10 @@
                     title: resp.title,
                     icon: resp.icon,
                     text: resp.text,
+                }).then(() => {
+                    window.location.href = "{% url 'product:transaction_index' %}"
                 })
-                console.error(resp.error)
+                
             },
             error: (resp) => {
                 console.error(resp)
