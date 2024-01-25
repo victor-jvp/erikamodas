@@ -1,4 +1,4 @@
-from .models import Product, TransactionCab, TransactionDet, CustomUser
+from .models import Location, Product, TransactionCab, TransactionDet, CustomUser
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
 from django.forms import inlineformset_factory
@@ -25,6 +25,11 @@ class CreateProductForm(ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'stock']
+        
+class LocationForm(ModelForm):
+    class Meta:
+        model = Location
+        fields = ['name']
 
 
 class EditProductForm(ModelForm):

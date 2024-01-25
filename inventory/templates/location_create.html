@@ -1,0 +1,29 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1 class="mt-3">Almacén Nuevo</h1>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <form action="{% url 'product:location_create' %}" method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control {% if errors.name %}is-invalid{% endif %}" name="name" id="name"
+                    placeholder="..." required>
+                <div class="invalid-feedback">
+                    {% if errors.name %}
+                    {% for error in errors.name %}
+                    {{ error.message }}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-outline-success"><i class="fa fa-save"></i> Guardar</button>
+            <a href="{% url 'product:location_index' %}" class="btn btn-outline-secondary"><i class="fa fa-undo"></i> Volver</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 import datetime
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
-from inventory.forms import CreateProductForm, EditProductForm, TransactionForm, TransactionInlineFormset
+from django.shortcuts import render, get_object_or_404, redirect
+from inventory.forms import CreateProductForm, EditProductForm, LocationForm, TransactionInlineFormset
 from .models import Location, Product, TransactionDet, TransactionCab, TransactionType
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -169,3 +169,54 @@ def transaction_create(request):
                 }
             }
         )
+
+
+# LOCATIONS
+
+def location_index(request):
+    locations = Location.objects.all()
+
+    return render(
+        request,
+        'location_index.html',
+        context={'locations': locations}
+    )
+
+def location_create(request):
+    errors = None
+    if request.method == 'POST':
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product:location_index')
+        else:
+            errors = form.errors.as_data()
+    else:
+        form = CreateProductForm()    
+    
+    return render(
+        request,
+        'location_create.html',
+        {
+            'form': form,
+            'errors': errors,
+        }
+    )
+    
+def location_edit(request, location_id):
+    errors = None
+    location = get_object_or_404(Location, id=location_id)
+
+    if request.method == 'POST':
+        form = LocationForm(request.POST, instance=location)
+        form.save()
+        return redirect('product:location_index')
+
+    return render(
+        request,
+        'location_edit.html',
+        {
+            'location': location,
+            'errors': errors
+        }
+    )
