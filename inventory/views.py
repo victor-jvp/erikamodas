@@ -1,10 +1,12 @@
 import datetime
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from inventory.forms import CreateProductForm, EditProductForm, LocationForm, TransactionInlineFormset
 from .models import Location, Product, TransactionDet, TransactionCab, transaction_types
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
     
 @login_required
 def index(request):
@@ -93,6 +95,7 @@ def ajax_transactions(request):
     data = []
     for item in cab:        
         data.append({
+            'id': item.id,
             'date': item.date.strftime("%d/%m/%Y"),
             'comment': item.comment,
             'details': list(item.details.values("product__name", "type", "location__name", "amount")),
@@ -106,6 +109,14 @@ def transaction_index(request):
         request,
         'transaction_index.html'
     )
+    
+
+def update_stock():
+    products = Product.objects.all()
+    for product in products:
+        stock = TransactionDet.objects.filter(product=product).aggregate(Sum('amount'))['amount__sum']
+        product.stock = stock
+        product.save()
 
 
 @login_required
@@ -123,6 +134,9 @@ def transaction_create(request):
             formset = TransactionInlineFormset(request.POST, instance=transaction_cab)
             if formset.is_valid():
                 formset.save()
+                
+                update_stock()
+                
                 resp = {
                     'title': 'Completado!',
                     'text': 'La transacción fue procesada correctamente',
@@ -166,6 +180,7 @@ def transaction_create(request):
 
 # LOCATIONS
 
+@login_required
 def location_index(request):
     locations = Location.objects.all()
 
@@ -175,6 +190,8 @@ def location_index(request):
         context={'locations': locations}
     )
 
+
+@login_required
 def location_create(request):
     errors = None
     if request.method == 'POST':
@@ -198,6 +215,8 @@ def location_create(request):
         }
     )
     
+
+@login_required
 def location_edit(request, location_id):
     errors = None
     location = get_object_or_404(Location, id=location_id)
