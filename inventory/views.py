@@ -252,3 +252,9 @@ def location_edit(request, location_id):
             'errors': errors
         }
     )
+
+
+# REPORTES
+
+def excel_transactions(request):
+    pass
