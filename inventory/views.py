@@ -13,9 +13,9 @@ def index(request):
     products = Product.objects.all()    
     for product in products:
         if request.user.location is not None:
-            stock = TransactionDet.objects.filter(location=request.user.location).aggregate(Sum('amount'))['amount__sum']
+            stock = TransactionDet.objects.filter(location=request.user.location, product=product).aggregate(Sum('amount'))['amount__sum']
         else:
-            stock = TransactionDet.objects.aggregate(Sum('amount'))['amount__sum']
+            stock = TransactionDet.objects.filter(product=product).aggregate(Sum('amount'))['amount__sum']
         if stock is None:
             product.stock = 0.0
         else:
@@ -101,12 +101,11 @@ def create(request):
 
 @login_required
 def ajax_transactions(request):
-    # cab = TransactionCab.objects.all()
     
     if request.user.location is None:
         cab = TransactionCab.objects.all()
     else:
-        cab = TransactionCab.objects.filter(
+        cab = TransactionCab.objects.distinct().filter(
             details__location=request.user.location)
             
     data = []
