@@ -72,9 +72,16 @@ def signout(request):
 
 @login_required
 def assign_location(request):
-    location = Location.objects.get(id=request.GET['location_id'])
+    location_id = request.GET['location_id']
+    user = User.objects.get(pk=request.user.id)
+    print(location_id)
+    if location_id == "0":
+        user.location = None
+        user.save()
+        return JsonResponse({'result': True}) 
+        
+    location = Location.objects.get(pk=location_id)
     if location is not None:
-        user = User.objects.get(pk=request.user.id)
         user.location = location
         user.save()
         return JsonResponse({'result': True})

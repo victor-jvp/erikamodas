@@ -226,7 +226,7 @@
         cantidad = (type.val() == "E") ? amount.val() : amount.val() * -1
 
         table.row.add([
-            `<input type="hidden" class="amount" data-field="amount" value="${amount.val()}">
+            `<input type="hidden" class="amount" data-field="amount" value="${cantidad}">
              <input type="hidden" class="type" data-field="type" value="${type.val()}"> ${type.find('option:selected').text()}`,
             `<input type="hidden" class="location" data-field="location" value="${almacen.val()}"> ${almacen.find('option:selected').text()}`,
             `<input type="hidden" class="product" data-field="product" value="${product.val()}"> ${product.find('option:selected').text()}`,

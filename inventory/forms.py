@@ -24,7 +24,7 @@ class CustomUserAuthenticationForm(AuthenticationForm):
 class CreateProductForm(ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'stock']
+        fields = ['name']
         
 class LocationForm(ModelForm):
     class Meta:

@@ -3,14 +3,24 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from inventory.forms import CreateProductForm, EditProductForm, LocationForm, TransactionInlineFormset
-from .models import Location, Product, TransactionDet, TransactionCab, transaction_types
+from .models import Location, Product, TransactionDet, TransactionCab, TRANSACTION_TYPES
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
     
 @login_required
-def index(request):
-    products = Product.objects.all()
+def index(request):        
+    products = Product.objects.all()    
+    for product in products:
+        if request.user.location is not None:
+            stock = TransactionDet.objects.filter(location=request.user.location).aggregate(Sum('amount'))['amount__sum']
+        else:
+            stock = TransactionDet.objects.aggregate(Sum('amount'))['amount__sum']
+        if stock is None:
+            product.stock = 0.0
+        else:
+            product.stock = stock
+        product.save()
 
     return render(
         request,
@@ -58,7 +68,7 @@ def create_first_transaction(request, product):
     transaction_cab.save()
     transaction_det = TransactionDet.objects.create(
         cab=transaction_cab,
-        type='E', # Entrada
+        type='E',  # Entrada
         location=request.user.location,
         product=product,
         amount=request.POST['stock']
@@ -91,16 +101,23 @@ def create(request):
 
 @login_required
 def ajax_transactions(request):
-    cab = TransactionCab.objects.all()
+    # cab = TransactionCab.objects.all()
+    
+    if request.user.location is None:
+        cab = TransactionCab.objects.all()
+    else:
+        cab = TransactionCab.objects.filter(
+            details__location=request.user.location)
+            
     data = []
-    for item in cab:        
+    for item in cab:
         data.append({
             'id': item.id,
             'date': item.date.strftime("%d/%m/%Y"),
             'comment': item.comment,
             'details': list(item.details.values("product__name", "type", "location__name", "amount")),
         })
-    return JsonResponse({ 'data': data, 'transaction_types': transaction_types }, safe=False)
+    return JsonResponse({ 'data': data, 'transaction_types': TRANSACTION_TYPES }, safe=False)
 
 
 @login_required
@@ -169,7 +186,7 @@ def transaction_create(request):
             {
                 'errors': errors,
                 'context': {
-                    'types': transaction_types,
+                    'types': TRANSACTION_TYPES,
                     'locations': locations,
                     'products': products,
                     'formset': formset,

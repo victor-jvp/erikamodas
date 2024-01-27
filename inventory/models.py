@@ -4,10 +4,16 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 # Tipos de transacción
-transaction_types = {
+TRANSACTION_TYPES = {
     'E': 'Entrada',
     'S': 'Salida',
 }
+
+# CASCADE: elimina el producto
+# PROTECT: lanza un error
+# RESTRICT: Solo elimina sino existen productos
+# SET_NULL: actualiza a valor nulo
+# SET_DEFAULT: asigna valor por defecto
 
 class Location(models.Model):
     name = models.CharField(max_length=255)
@@ -27,12 +33,7 @@ class CustomUser(AbstractUser):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    stock = models.IntegerField()
-    # CASCADE: elimina el producto
-    # PROTECT: lanza un error
-    # RESTRICT: Solo elimina sino existen productos
-    # SET_NULL: actualiza a valor nulo
-    # SET_DEFAULT: asigna valor por defecto
+    stock = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -51,7 +52,7 @@ class TransactionCab(models.Model):
 
 class TransactionDet(models.Model):
     cab = models.ForeignKey(TransactionCab, related_name="details", on_delete=models.CASCADE)
-    type = models.CharField(max_length=3)
+    type = models.CharField(max_length=1, choices=TRANSACTION_TYPES)
     location = models.ForeignKey(Location, models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
     amount = models.FloatField()

@@ -23,8 +23,11 @@
 <body>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
+      {% if user.is_authenticated %}
       <a class="navbar-brand" href="javascript:void(0);" id="select_location">Almacén: <span class="text-primary">
-        {% if user.location %}{{ user.location }}{% else %}-Ninguno-{% endif %}</span></a>
+        {% if user.location %}{{ user.location }}{% else %}-Todos-{% endif %}</span>
+      </a>
+      {% endif %}
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
         aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -76,11 +79,10 @@
     function assignLocation()
     {
       const locations = JSON.parse("{{ request.session.locations|escapejs }}")
-      let options = {}
+      let options = {"0": "-Todos-"}
       locations.forEach((e, i) => {
         options[e.id] = e.name
       })
-      console.log(options)
       Swal.fire({
         title: 'Seleccionar Almacén',
         icon: "question",
@@ -93,8 +95,7 @@
         preConfirm: async (option) => {
           try {
             console.log(option)
-            if (!option) return swal.showValidationMessage(`Debe seleccionar un almacen a asignar como predeterminado.`)
-
+            if (option == "") return swal.showValidationMessage(`Debe seleccionar un almacen a asignar como predeterminado.`)
             $.ajax({
               type: 'GET',
               data: { location_id: option },
