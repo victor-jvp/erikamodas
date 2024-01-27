@@ -97,7 +97,7 @@ def ajax_transactions(request):
             'comment': item.comment,
             'details': list(item.details.values("product__name", "type", "location__name", "amount")),
         })
-    return JsonResponse({ 'data': data }, safe=False)
+    return JsonResponse({ 'data': data, 'transaction_types': transaction_types }, safe=False)
 
 
 @login_required
@@ -146,7 +146,7 @@ def transaction_create(request):
 
         return JsonResponse(resp)
     else:
-        types = TransactionType.objects.all()
+        
         locations = Location.objects.all()
         products = Product.objects.all()
         return render(
@@ -155,7 +155,7 @@ def transaction_create(request):
             {
                 'errors': errors,
                 'context': {
-                    'types': list(transaction_types),
+                    'types': transaction_types,
                     'locations': locations,
                     'products': products,
                     'formset': formset,

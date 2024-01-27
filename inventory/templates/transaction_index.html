@@ -47,7 +47,7 @@
 </secction>
 
 <script>
-    let table
+   let transaction_types = undefined
     $(document).ready(function () {
       table = $("#table").DataTable({
         language: {
@@ -56,7 +56,11 @@
         responsive: true,
         ajax: {
             type: 'GET',
-            url: '{% url "product:ajax_transactions" %}'
+            url: '{% url "product:ajax_transactions" %}',
+            dataSrc: (json) => {
+              transaction_types = json.transaction_types;
+              return json.data;
+            }
         },
         columns: [
           { data: 'date' },
@@ -68,7 +72,7 @@
                 rows += `<tr>
                   <td class="text-center" width="25%">${e.location__name}</td>
                   <td class="text-start" width="25%"><b>${e.product__name}<b/></td>
-                  <td class="text-center" width="25%">${e.type__name}</td>
+                  <td class="text-center" width="25%">${transaction_types[e.type]}</td>
                   <td class="text-end" width="25%">${e.amount}</td>
                 </tr>`
               });
