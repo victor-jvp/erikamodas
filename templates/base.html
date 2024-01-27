@@ -68,18 +68,19 @@
   <script>
     // Selecciona el almacen del usuario en sesión
     $(document).ready(function () {
-      const locations = JSON.parse("{{ request.session.locations|escapejs }}")
-      let options = {}
-      locations.forEach((e, i) => {
-        options[e.id] = e.name
-      })
       $("#select_location").click(function () {
-
+        assignLocation()
       })
     })
 
     function assignLocation()
     {
+      const locations = JSON.parse("{{ request.session.locations|escapejs }}")
+      let options = {}
+      locations.forEach((e, i) => {
+        options[e.id] = e.name
+      })
+      console.log(options)
       Swal.fire({
         title: 'Seleccionar Almacén',
         icon: "question",
