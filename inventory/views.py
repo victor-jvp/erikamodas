@@ -1,17 +1,10 @@
 import datetime
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from inventory.forms import CreateProductForm, EditProductForm, LocationForm, TransactionInlineFormset
-from .models import Location, Product, TransactionDet, TransactionCab, TransactionType
+from .models import Location, Product, TransactionDet, TransactionCab, transaction_types
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
-# Tipos de transacción
-types = {
-    'E': 'Entrada',
-    'S': 'Salida',
-    'A': 'Ajuste'
-}
     
 @login_required
 def index(request):
@@ -43,7 +36,7 @@ def edit(request, product_id):
     if request.method == 'POST':
         form = EditProductForm(request.POST, instance=product)
         form.save()
-        return HttpResponseRedirect('/inventory')
+        return redirect('product:index')
 
     return render(
         request,
@@ -63,7 +56,7 @@ def create_first_transaction(request, product):
     transaction_cab.save()
     transaction_det = TransactionDet.objects.create(
         cab=transaction_cab,
-        type=TransactionType.objects.get(id=1), # Entrada
+        type='E', # Entrada
         location=request.user.location,
         product=product,
         amount=request.POST['stock']
@@ -78,7 +71,7 @@ def create(request):
         if form.is_valid():
             new_product = form.save()
             create_first_transaction(request, product=new_product)
-            return HttpResponseRedirect('/inventory')
+            return redirect('product:index')
         else:
             errors = form.errors.as_data()
     else:
@@ -102,7 +95,7 @@ def ajax_transactions(request):
         data.append({
             'date': item.date.strftime("%d/%m/%Y"),
             'comment': item.comment,
-            'details': list(item.details.values("product__name", "type__name", "location__name", "amount")),
+            'details': list(item.details.values("product__name", "type", "location__name", "amount")),
         })
     return JsonResponse({ 'data': data }, safe=False)
 
@@ -162,7 +155,7 @@ def transaction_create(request):
             {
                 'errors': errors,
                 'context': {
-                    'types': types,
+                    'types': list(transaction_types),
                     'locations': locations,
                     'products': products,
                     'formset': formset,
@@ -188,6 +181,8 @@ def location_create(request):
         form = LocationForm(request.POST)
         if form.is_valid():
             form.save()
+            request.session['locations'] = json.dumps(
+                list(Location.objects.values('id', 'name')))
             return redirect('product:location_index')
         else:
             errors = form.errors.as_data()
@@ -210,6 +205,8 @@ def location_edit(request, location_id):
     if request.method == 'POST':
         form = LocationForm(request.POST, instance=location)
         form.save()
+        request.session['locations'] = json.dumps(
+            list(Location.objects.values('id', 'name')))
         return redirect('product:location_index')
 
     return render(

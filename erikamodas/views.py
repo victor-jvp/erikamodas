@@ -1,11 +1,13 @@
+from django.http import JsonResponse
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from inventory.forms import CustomUserCreationForm as UserCreationForm, CustomUserAuthenticationForm as AuthenticationForm
 # from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from inventory.models import CustomUser as User
+from inventory.models import CustomUser as User, Location
 # from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
+import json
 
 @login_required
 def index(request):
@@ -26,6 +28,7 @@ def signup(request):
                     username=request.POST['username'], password=request.POST['password1'])
                 user.save()
                 login(request, user)
+                request.session['locations'] = list(Location.objects.values('id', 'name'))
                 return redirect('home')
             except IntegrityError:
                 return render(request, 'signup.html', {
@@ -57,6 +60,7 @@ def signin(request):
             })
         else:
             login(request, user)
+            request.session['locations'] = json.dumps(list(Location.objects.values('id', 'name')))
             return redirect('home')
 
 
@@ -64,3 +68,15 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect('signin')
+
+
+@login_required
+def assign_location(request):
+    location = Location.objects.get(id=request.GET['location_id'])
+    if location is not None:
+        user = User.objects.get(pk=request.user.id)
+        user.location = location
+        user.save()
+        return JsonResponse({'result': True})
+    else:
+        return JsonResponse({'result': False})

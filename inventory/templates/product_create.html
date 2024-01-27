@@ -40,3 +40,16 @@
 </div>
 
 {% endblock %}
+
+{% block custom_js %}
+<script>
+    $(document).ready(function(){
+        user_location = "{{ request.user.location.id|escapejs }}" ?? null
+        console.log(user_location)
+        if(user_location == "")
+        {
+            Swal.fire('Aviso', 'Antes de guardar un producto debe seleccionar un almacen predeterminado para su usuario', 'warning').then(assignLocation())
+        }
+    })
+</script>
+{% endblock %}

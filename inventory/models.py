@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
+# Tipos de transacción
+transaction_types = {
+    'E': 'Entrada',
+    'S': 'Salida',
+}
 
 class Location(models.Model):
     name = models.CharField(max_length=255)
@@ -30,14 +35,6 @@ class Product(models.Model):
     # SET_DEFAULT: asigna valor por defecto
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
-    
-
-class TransactionType(models.Model):
-    name = models.CharField(max_length=3)
-    isActive = models.BooleanField(default=True)
-    
     def __str__(self):
         return self.name
 

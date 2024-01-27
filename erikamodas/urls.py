@@ -25,4 +25,5 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('logout/', views.signout, name='logout'),
     path("inventory/", include('inventory.urls')),
+    path('assign-location', views.assign_location, name='assign_location'),
 ]
