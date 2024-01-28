@@ -3,15 +3,48 @@ from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from inventory.forms import CustomUserCreationForm as UserCreationForm, CustomUserAuthenticationForm as AuthenticationForm
 # from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from inventory.models import CustomUser as User, Location
+from inventory.models import CustomUser as User, Location, Product, TransactionDet
+from inventory.views import current_products
 # from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 import json
+from django.db.models import Sum
 
 @login_required
 def index(request):
-    return render(request, 'index.html')
+    # Data for Products Chart
+    data_products = []
+    products = current_products(request)
+    for product in products:
+        data_products.append({"label": product.name, "y": product.stock})
+    
+    # Data for Locations Chart
+    data_locations = []
+    for location in Location.objects.all():
+        data = []
+        for product in products:
+            stock = TransactionDet.objects.filter(location=location, product=product).aggregate(Sum('amount'))['amount__sum']
+            data.append({"label": product.name, "y": stock})
+        data_locations.append({ 
+            "type": "stackedBar100",
+            "name": location.name,
+            "dataPoints": data,
+            "showInLegend": 1,
+        })
+        
+    context = {
+        "products": {
+            "data": data_products,
+            "title": "Inventario de Productos"
+        },
+        "locations": {
+            "data": data_locations,
+            "title": "Productos por Almacén"
+        }
+    }
+    print(context)
+    return render(request, 'index.html', {"context": context})
 
 
 def signup(request):

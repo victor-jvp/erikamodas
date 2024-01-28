@@ -51,12 +51,16 @@
 <script>
   let table
   $(document).ready(function () {
+    // Load Datatable
     table = $("#table").DataTable({
       language: {
         url: "{% static 'json/es-ES.json' %}"
       },
       sorting: [[0, 'desc']]
     })
+
+    // Load Canvas
+
   })
 </script>
 

@@ -9,9 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django_excel_response import ExcelResponse
 
-
-@login_required
-def index(request):
+def current_products(request):
     products = Product.objects.all()
     for product in products:
         if request.user.location is not None:
@@ -25,6 +23,11 @@ def index(request):
         else:
             product.stock = stock
         product.save()
+    return products
+
+@login_required
+def index(request):
+    products = current_products(request)
 
     return render(
         request,
@@ -307,7 +310,7 @@ def xls_products(request):
         ]
     ]
     products = Product.objects.all().order_by('-id')
-    location_name = ""
+    location_name = "-Todos-"
     if request.user.location is not None:
         location_name = request.user.location.name
     for product in products:

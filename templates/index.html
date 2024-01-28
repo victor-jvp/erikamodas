@@ -1,6 +1,75 @@
 {% extends 'base.html' %}
-
+{% load static %}
 
 {% block content %}
-    Inicio de inventario...
+<section class="container">
+    <div class="card text-start mt-3">
+        <!-- <img class="card-img-top" src="holder.js/100px180/" alt="Title" /> -->
+        <div class="card-body">
+            <h4 class="card-title">Datos del Inventario</h4>
+            <div class="row">
+                <div class="col-6">
+                    <div id="chart_products" style="width: 100%; height: 360px;"></div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col">
+                    <div id="chart_locations" style="width: 100%; height: 360px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<script>
+    window.onload = function () {
+        var chart_products = new CanvasJS.Chart("chart_products", {
+            animationEnabled: true, // change to false
+            title: {
+                text: "{{ context.products.title | safe }}"
+            },
+            data: [{
+                type: "column",
+                dataPoints: {{ context.products.data | safe }}
+            }]
+        });
+        chart_products.render();
+
+        var chart_locations = new CanvasJS.Chart("chart_locations", {
+            animationEnabled: true,
+            exportEnabled: false,
+            theme: "light1", //"light1", "dark1", "dark2"
+            title: {
+                text: "{{ context.locations.title | safe }}"
+            },
+            axisY: {
+                interval: 10,
+                suffix: "%"
+            },
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                cursor: "pointer",
+                itemclick: toggleDataSeries
+            },
+            data: {{ context.locations.data | safe }}
+        })
+        chart_locations.render();
+    }
+
+    function toggleDataSeries(e) {
+        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+        } else {
+            e.dataSeries.visible = true;
+        }
+        e.chart.render();
+    }
+</script>
 {% endblock content %}
+
+{% block custom_js %}
+<script src="{% static 'plugins/canvas.min.js' %}"></script>
+{% endblock custom_js %}
