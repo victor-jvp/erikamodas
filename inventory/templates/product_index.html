@@ -6,9 +6,14 @@
 <div class="card mt-3">
   <div class="card-body">
     <div class="row">
-      <div class="col-md-3 mb-3 clearfix">
+      <div class="col-6 mb-3 clearfix">
         <a class="btn btn-outline-primary" href="{% url 'product:create' %}">
           <i class="fa fa-plus"></i> Nuevo</a>
+      </div>
+      <div class="col-6 text-end mb-3 clearfix">
+        <a class="btn btn-outline-success" href="{% url 'product:xls_products' %}">
+          <i class="fa fa-file-excel-o"></i> Exportar a Excel
+        </a>
       </div>
     </div>
     
@@ -17,15 +22,16 @@
         <table class="table table-striped table-bordered" id="table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Stock</th>
-              <!-- <th>Categoria</th> -->
             </tr>
           </thead>
         
           <tbody>
             {% for product in products %}
             <tr>
+              <td>{{ product.id }}</td>
               <td>
                 <a href="{% url 'product:edit' product.id %}">
                   {{ product.name }}
@@ -46,9 +52,10 @@
   let table
   $(document).ready(function () {
     table = $("#table").DataTable({
-      'language': {
+      language: {
         url: "{% static 'json/es-ES.json' %}"
-      }
+      },
+      sorting: [[0, 'desc']]
     })
   })
 </script>

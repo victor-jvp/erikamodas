@@ -18,6 +18,6 @@ urlpatterns = [
     path('locations/create', views.location_create, name='location_create'),
     path('locations/<int:location_id>/edit', views.location_edit, name='location_edit'),
     # Reports
-    path('xls/transactions/',
-         views.xls_transactions, name='xls_transactions'),
+    path('xls/transactions/', views.xls_transactions, name='xls_transactions'),
+    path('xls/products/', views.xls_products, name='xls_products'),
 ]

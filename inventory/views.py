@@ -8,15 +8,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django_excel_response import ExcelResponse
-    
+
+
 @login_required
-def index(request):        
-    products = Product.objects.all()    
+def index(request):
+    products = Product.objects.all()
     for product in products:
         if request.user.location is not None:
-            stock = TransactionDet.objects.filter(location=request.user.location, product=product).aggregate(Sum('amount'))['amount__sum']
+            stock = TransactionDet.objects.filter(
+                location=request.user.location, product=product).aggregate(Sum('amount'))['amount__sum']
         else:
-            stock = TransactionDet.objects.filter(product=product).aggregate(Sum('amount'))['amount__sum']
+            stock = TransactionDet.objects.filter(
+                product=product).aggregate(Sum('amount'))['amount__sum']
         if stock is None:
             product.stock = 0.0
         else:
@@ -76,6 +79,7 @@ def create_first_transaction(request, product):
     )
     transaction_det.save()
 
+
 @login_required
 def create(request):
     errors = None
@@ -102,13 +106,13 @@ def create(request):
 
 @login_required
 def ajax_transactions(request):
-    
+
     if request.user.location is None:
         cab = TransactionCab.objects.all()
     else:
         cab = TransactionCab.objects.distinct().filter(
             details__location=request.user.location)
-            
+
     data = []
     for item in cab:
         data.append({
@@ -117,7 +121,7 @@ def ajax_transactions(request):
             'comment': item.comment,
             'details': list(item.details.values("product__name", "type", "location__name", "amount")),
         })
-    return JsonResponse({ 'data': data, 'transaction_types': TRANSACTION_TYPES }, safe=False)
+    return JsonResponse({'data': data, 'transaction_types': TRANSACTION_TYPES}, safe=False)
 
 
 @login_required
@@ -126,12 +130,13 @@ def transaction_index(request):
         request,
         'transaction_index.html'
     )
-    
+
 
 def update_stock():
     products = Product.objects.all()
     for product in products:
-        stock = TransactionDet.objects.filter(product=product).aggregate(Sum('amount'))['amount__sum']
+        stock = TransactionDet.objects.filter(
+            product=product).aggregate(Sum('amount'))['amount__sum']
         product.stock = stock
         product.save()
 
@@ -140,7 +145,7 @@ def update_stock():
 def transaction_create(request):
     errors = None
     formset = TransactionInlineFormset()
-    
+
     if request.method == 'POST':
         try:
             transaction_cab = TransactionCab.objects.create(
@@ -148,12 +153,13 @@ def transaction_create(request):
                 comment=request.POST['comment'],
                 created_by=request.user)
             transaction_cab.save()
-            formset = TransactionInlineFormset(request.POST, instance=transaction_cab)
+            formset = TransactionInlineFormset(
+                request.POST, instance=transaction_cab)
             if formset.is_valid():
                 formset.save()
-                
+
                 update_stock()
-                
+
                 resp = {
                     'title': 'Completado!',
                     'text': 'La transacción fue procesada correctamente',
@@ -177,7 +183,7 @@ def transaction_create(request):
 
         return JsonResponse(resp)
     else:
-        
+
         locations = Location.objects.all()
         products = Product.objects.all()
         return render(
@@ -221,8 +227,8 @@ def location_create(request):
         else:
             errors = form.errors.as_data()
     else:
-        form = CreateProductForm()    
-    
+        form = CreateProductForm()
+
     return render(
         request,
         'location_create.html',
@@ -231,7 +237,7 @@ def location_create(request):
             'errors': errors,
         }
     )
-    
+
 
 @login_required
 def location_edit(request, location_id):
@@ -266,25 +272,60 @@ def xls_transactions(request):
 
     data = [
         [
-            'ID', 
-            'Fecha', 
-            "Comentario", 
-            "Almacén", 
-            "Transacción", 
-            "Producto", 
+            'ID',
+            'Fecha',
+            "Comentario",
+            "Almacén",
+            "Transacción",
+            "Producto",
             "Cantidad"
         ]
     ]
     for item in cab:
         for detail in item.details.values('product__name', 'type', 'location__name', 'amount'):
             data.append([
-                item.id, 
-                item.date.strftime("%d/%m/%Y"), 
-                item.comment, 
+                item.id,
+                item.date.strftime("%d/%m/%Y"),
+                item.comment,
                 detail['location__name'],
                 TRANSACTION_TYPES[detail['type']],
-                detail['product__name'], 
+                detail['product__name'],
                 int(detail['amount'])
-                ])
-    
-    return ExcelResponse(data, 'Transacciones', font='name SimSum')
+            ])
+
+    return ExcelResponse(data, 'Transacciones')
+
+
+@login_required
+def xls_products(request):
+    data = [
+        [
+            'ID',
+            "Almacén",
+            'Producto',
+            "Cantidad"
+        ]
+    ]
+    products = Product.objects.all().order_by('-id')
+    location_name = ""
+    if request.user.location is not None:
+        location_name = request.user.location.name
+    for product in products:
+        if request.user.location is not None:
+            stock = TransactionDet.objects.filter(
+                location=request.user.location, product=product).aggregate(Sum('amount'))['amount__sum']
+        else:
+            stock = TransactionDet.objects.filter(
+                product=product).aggregate(Sum('amount'))['amount__sum']
+            
+        if stock is None:
+            stock = 0
+
+        data.append([
+            product.id,
+            location_name,
+            product.name,
+            stock
+        ])
+
+    return ExcelResponse(data, 'Productos')
