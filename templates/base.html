@@ -25,13 +25,9 @@
     <div class="container-fluid">
       {% if user.is_authenticated %}
       <a class="navbar-brand" href="javascript:void(0);" id="select_location">Almacén: <span class="text-warning">
-        {% if user.location %}{{ user.location }}{% else %}-Todos-{% endif %}</span>
+          {% if user.location %}{{ user.location }}{% else %}-Todos-{% endif %}</span>
       </a>
       {% endif %}
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           {% if user.is_authenticated %}
@@ -39,13 +35,20 @@
           <a class="nav-link" href="{% url 'product:location_index' %}">Almacenes</a>
           <a class="nav-link" href="{% url 'product:index' %}">Productos</a>
           <a class="nav-link" href="{% url 'product:transaction_index' %}">Transacciones</a>
-          <a class="nav-link" href="{% url 'logout' %}"><b>Cerrar Sesión</b></a>
-          {% else %}
-          <!-- <a class="nav-link" href="{% url 'signup' %}">Signup</a> -->
-          <a class="nav-link" href="{% url 'signin' %}">Iniciar Sesión</a>
           {% endif %}
         </div>
       </div>
+      <div class="d-flex">
+        {% if user.is_authenticated %}
+        <a class="btn btn-light btn-sm" href="{% url 'logout' %}"><b>Cerrar Sesión</b></a>
+        {% else %}
+        <a class="nav-link" href="{% url 'signin' %}">Iniciar Sesión</a>
+        {% endif %}
+      </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
     </div>
   </nav>
   <div class="container">{% block content %} {% endblock %}</div>
@@ -74,14 +77,11 @@
       $("#select_location").click(function () {
         assignLocation()
       })
-
-      console.log("{{ request.resolver_match.view_name }}")
     })
 
-    function assignLocation()
-    {
+    function assignLocation() {
       const locations = JSON.parse("{{ request.session.locations|escapejs }}")
-      let options = {"0": "-Todos-"}
+      let options = { "0": "-Todos-" }
       locations.forEach((e, i) => {
         options[e.id] = e.name
       })
