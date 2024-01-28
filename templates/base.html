@@ -21,10 +21,10 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary bg-dark border-bottom border-body" data-bs-theme="dark">
     <div class="container-fluid">
       {% if user.is_authenticated %}
-      <a class="navbar-brand" href="javascript:void(0);" id="select_location">Almacén: <span class="text-primary">
+      <a class="navbar-brand" href="javascript:void(0);" id="select_location">Almacén: <span class="text-warning">
         {% if user.location %}{{ user.location }}{% else %}-Todos-{% endif %}</span>
       </a>
       {% endif %}
@@ -35,7 +35,7 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           {% if user.is_authenticated %}
-          <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
+          <a class="nav-link" aria-current="page" href="{% url 'home' %}">Inicio</a>
           <a class="nav-link" href="{% url 'product:location_index' %}">Almacenes</a>
           <a class="nav-link" href="{% url 'product:index' %}">Productos</a>
           <a class="nav-link" href="{% url 'product:transaction_index' %}">Transacciones</a>
@@ -74,6 +74,8 @@
       $("#select_location").click(function () {
         assignLocation()
       })
+
+      console.log("{{ request.resolver_match.view_name }}")
     })
 
     function assignLocation()
@@ -84,13 +86,17 @@
         options[e.id] = e.name
       })
       Swal.fire({
-        title: 'Seleccionar Almacén',
-        icon: "question",
+        title: 'Selector de Almacén',
+        text: 'Seleccione el almacén predeterminado de sus operaciones',
+        icon: "info",
         input: 'select',
         inputOptions: options,
         inputPlaceholder: "-Seleccione el almacén-",
         showCancelButton: true,
-        confirmButtonText: "Aceptar",
+        cancelButtonText: '<i class="fa fa-undo"></i> Cancelar',
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: '<i class="fa fa-save"></i> Aceptar',
+        confirmButtonColor: "#0d6efd",
         showLoaderOnConfirm: true,
         preConfirm: async (option) => {
           try {

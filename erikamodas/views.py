@@ -25,6 +25,8 @@ def index(request):
         data = []
         for product in products:
             stock = TransactionDet.objects.filter(location=location, product=product).aggregate(Sum('amount'))['amount__sum']
+            if stock is None:
+                stock = 0
             data.append({"label": product.name, "y": stock})
         data_locations.append({ 
             "type": "stackedBar100",

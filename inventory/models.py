@@ -55,7 +55,7 @@ class TransactionDet(models.Model):
     type = models.CharField(max_length=1, choices=TRANSACTION_TYPES)
     location = models.ForeignKey(Location, models.RESTRICT)
     product = models.ForeignKey(Product, on_delete=models.RESTRICT)
-    amount = models.FloatField()
+    amount = models.IntegerField(default=0)
     
     class Meta:
         db_table = "transactions_det"

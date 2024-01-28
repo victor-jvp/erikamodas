@@ -19,7 +19,7 @@ def current_products(request):
             stock = TransactionDet.objects.filter(
                 product=product).aggregate(Sum('amount'))['amount__sum']
         if stock is None:
-            product.stock = 0.0
+            product.stock = 0
         else:
             product.stock = stock
         product.save()
