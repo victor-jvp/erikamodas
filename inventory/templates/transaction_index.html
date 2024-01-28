@@ -10,22 +10,27 @@
         <div class="card-body">
 
             <div class="row">
-                <div class="col-md-3 mb-3 clearfix">
+                <div class="col-6 mb-3 clearfix">
                   <a class="btn btn-outline-primary" href="{% url 'product:transaction_create' %}">
-                    <i class="fa fa-plus"></i> Nueva</a>
+                    <i class="fa fa-plus"></i> Nueva
+                  </a>
                 </div>
+                <!-- <div class="col-6 text-end mb-3 clearfix">
+                  <a class="btn btn-outline-success" href="{% url 'product:xls_transactions' %}">
+                    <i class="fa fa-file-excel-o"></i> Exportar a Excel
+                  </a>
+                </div> -->
               </div>
 
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-striped table-bordered table-sm" id="table" style="width: 100%;">
+                    <table class="table table-striped table-sm align-middle" id="table" style="width: 100%;">
                         <thead>
-                            <tr>
+                            <tr style="border-style: solid black 1px;">
                                 <th>ID</th>
                                 <th>Fecha</th>
                                 <th>Comentario</th>
                                 <th>
-                                  Detalles
                                   <table class="table table-sm">
                                     <thead>
                                       <tr>
@@ -54,6 +59,16 @@
         language: {
           url: "{% static 'json/es-ES.json' %}"
         },
+        dom: 'Bfrtip',
+        buttons: [
+          'copyHtml5',
+          {
+            text: 'Excel',
+            action: (e, dt, node, config) => {
+              return window.location.href = "{% url 'product:xls_transactions' %}"
+            }
+          },
+        ],
         responsive: true,
         ajax: {
             type: 'GET',
@@ -64,7 +79,7 @@
             }
         },
         columns: [
-          { data: 'id', visible: false },
+          { data: 'id' },
           { data: 'date' },
           { data: 'comment' },
           { 
@@ -91,17 +106,32 @@
           [1, 'desc'],
           [0, 'desc'],
         ]
-      })
+      });
+
+      table.buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');
     })
   </script>
 
 {% endblock %}
 
 {% block custom_css %}
+<!-- Responsive Datatable CSS -->
 <link rel="stylesheet" href="{% static 'css/responsive.bootstrap5.min.css'%}">
+<!-- Export Buttons -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
 {% endblock %}
 
 {% block custom_js %}
+<!-- Basic Datatables Js -->
 <script src="{% static 'js/dataTables.responsive.min.js' %}"></script>
 <script src="{% static 'js/responsive.bootstrap5.min.js' %}"></script>
+<!-- Export Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 {% endblock %}

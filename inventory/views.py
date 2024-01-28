@@ -7,6 +7,7 @@ from .models import Location, Product, TransactionDet, TransactionCab, TRANSACTI
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from django_excel_response import ExcelResponse
     
 @login_required
 def index(request):        
@@ -255,6 +256,35 @@ def location_edit(request, location_id):
 
 
 # REPORTES
+@login_required
+def xls_transactions(request):
+    if request.user.location is None:
+        cab = TransactionCab.objects.all()
+    else:
+        cab = TransactionCab.objects.distinct().filter(
+            details__location=request.user.location)
 
-def excel_transactions(request):
-    pass
+    data = [
+        [
+            'ID', 
+            'Fecha', 
+            "Comentario", 
+            "Almacén", 
+            "Transacción", 
+            "Producto", 
+            "Cantidad"
+        ]
+    ]
+    for item in cab:
+        for detail in item.details.values('product__name', 'type', 'location__name', 'amount'):
+            data.append([
+                item.id, 
+                item.date.strftime("%d/%m/%Y"), 
+                item.comment, 
+                detail['location__name'],
+                TRANSACTION_TYPES[detail['type']],
+                detail['product__name'], 
+                int(detail['amount'])
+                ])
+    
+    return ExcelResponse(data, 'Transacciones', font='name SimSum')
