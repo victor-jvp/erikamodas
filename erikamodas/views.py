@@ -45,7 +45,6 @@ def index(request):
             "title": "Productos por Almacén"
         }
     }
-    print(context)
     return render(request, 'index.html', {"context": context})
 
 
@@ -109,7 +108,6 @@ def signout(request):
 def assign_location(request):
     location_id = request.GET['location_id']
     user = User.objects.get(pk=request.user.id)
-    print(location_id)
     if location_id == "0":
         user.location = None
         user.save()
